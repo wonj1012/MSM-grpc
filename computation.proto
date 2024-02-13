@@ -9,6 +9,9 @@ service ComputationService {
 
   // Receives computation results from a node
   rpc GetComputationResult (ComputationResult) returns (ResultAck);
+
+  // Streams computation data to a node
+  rpc StreamComputationData (StreamRequest) returns (stream ComputationData);
 }
 
 // The request message containing the computation data.
@@ -26,7 +29,14 @@ message ComputationResult {
   string result = 1;
 }
 
-// The acknowledgment message for receiving the computation results.
 message ResultAck {
   bool success = 1;
+}
+
+message StreamRequest {
+  string clientId = 1;
+}
+
+message ComputationData {
+  string data = 1;
 }
