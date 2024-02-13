@@ -25,10 +25,7 @@ const sendComputationData: grpc.handleUnaryCall<any, any> = (
   callback
 ) => {
   console.log(`Received computation data: ${call.request.data}`);
-  callback(
-    "12140600968266569054356787520092091922855005618203899569582210134669575736412, 20594015357941439359162789363892262833371893832418193363476423111408246346372",
-    { success: true }
-  );
+  callback(null, { success: true });
 };
 
 const getComputationResult: grpc.handleUnaryCall<any, any> = (
