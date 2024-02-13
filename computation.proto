@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package computation;
+
+// The computation service definition.
+service ComputationService {
+  // Sends computation data to a node
+  rpc SendComputationData (ComputationRequest) returns (ComputationAck);
+
+  // Receives computation results from a node
+  rpc GetComputationResult (ComputationResult) returns (ResultAck);
+}
+
+// The request message containing the computation data.
+message ComputationRequest {
+  string data = 1;
+}
+
+// The acknowledgment message for computation data reception.
+message ComputationAck {
+  bool success = 1;
+}
+
+// The message containing computation results.
+message ComputationResult {
+  string result = 1;
+}
+
+// The acknowledgment message for receiving the computation results.
+message ResultAck {
+  bool success = 1;
+}
