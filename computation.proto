@@ -5,10 +5,7 @@ package computation;
 // The computation service definition.
 service ComputationService {
   // Sends computation data to a node
-  rpc SendComputationData (ComputationRequest) returns (ComputationAck);
-
-  // Receives computation results from a node
-  rpc GetComputationResult (ComputationResult) returns (ResultAck);
+  rpc sendPoint (PointRequest) returns (ResultAck);
 
   // Streams computation data to a node
   rpc StreamComputationData (StreamRequest) returns (stream ComputationData);
@@ -24,6 +21,12 @@ message Base {
 message ComputationData {
   repeated string scalar = 1; // Array of bigint, represented as strings
   repeated Base base = 2; // Array of 'Base' objects
+}
+
+message PointRequest {
+  string x = 1;
+  string y = 2;
+  string clientId = 3;
 }
 
 // The request message containing the computation data.
