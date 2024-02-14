@@ -1,6 +1,7 @@
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
+import { uuid } from "uuidv4";
 
 const localServer = "localhost:50051";
 const remoteServer =
@@ -71,7 +72,7 @@ const getComputationResult = () => {
 };
 
 const streamComputationData = () => {
-  const streamRequest = { clientId: "client1" };
+  const streamRequest = { clientId: uuid() };
   const stream = client.streamComputationData(streamRequest);
   stream.on("data", (data: ComputationData) => {
     console.log(`Received stream data: ${data.data}`);
@@ -82,8 +83,8 @@ const streamComputationData = () => {
 };
 
 // Call the methods
-sendComputationData();
-getComputationResult();
+// sendComputationData();
+// getComputationResult();
 
 // 스트리밍 데이터 받기 시작
 streamComputationData();

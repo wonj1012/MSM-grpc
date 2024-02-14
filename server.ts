@@ -1,6 +1,13 @@
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
+// Structure to hold client information and stream
+interface Client {
+  id: string;
+  stream: grpc.ServerWritableStream<StreamRequest, ComputationData>;
+}
+
+const clients: Client[] = [];
 
 interface StreamRequest {
   clientId: string;
@@ -48,23 +55,28 @@ const streamComputationData: grpc.handleServerStreamingCall<
   StreamRequest,
   ComputationData
 > = (call) => {
-  let count = 0;
-  const intervalId = setInterval(() => {
-    count++;
-    if (count > 10) {
-      // 예시로 10번 데이터를 보낸 후 종료
-      clearInterval(intervalId);
-      call.end();
-      return;
-    }
-    const data = { data: `Data ${count}` }; // 연산 데이터 생성
-    call.write(data);
-  }, 5000); // 5초 간격으로 데이터 보내기
+  console.log("streamComputationData");
+
+  const clientId = call.request.clientId;
+  console.log(`Client connected: ${clientId}, from ${call.getPeer()}`);
+
+  const existingClient = clients.find((client) => client.id === clientId);
+  if (!existingClient) {
+    clients.push({ id: clientId, stream: call }); // Store client info and stream
+  }
+
+  // Check if 4 clients have connected, then broadcast a message
+  if (clients.length === 4) {
+    console.log("Broadcasting message to all clients");
+    clients.forEach((client) => {
+      client.stream.write({ data: "hello" }); // Replace 'hello' with your actual data
+    });
+  } else {
+    console.log(`Waiting for more clients. Current count: ${clients.length}`);
+  }
 };
 
 server.addService(computation.ComputationService.service, {
-  sendComputationData,
-  getComputationResult,
   streamComputationData,
 });
 
