@@ -2,6 +2,10 @@ import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 
+const localServer = "localhost:50051";
+const remoteServer =
+  "ec2-43-203-120-228.ap-northeast-2.compute.amazonaws.com:50051";
+
 interface ComputationData {
   data: string;
 }
@@ -24,7 +28,8 @@ const computation = protoDescriptor.computation as any;
 
 // Create a client for the ComputationService
 const client = new computation.ComputationService(
-  "localhost:50051",
+  localServer,
+  // remoteServer,
   grpc.credentials.createInsecure()
 );
 

@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "run-server": "ts-node server.ts",
+    "run-client": "ts-node client.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,5 +17,8 @@
     "grpc-tools": "^1.12.4",
     "ts-node": "^10.9.2",
     "ts-protoc-gen": "^0.15.0"
+  },
+  "dependencies": {
+    "typescript": "^5.3.3"
   }
 }
