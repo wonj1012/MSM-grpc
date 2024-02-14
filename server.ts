@@ -2,10 +2,12 @@ import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 import fs from "fs";
+// import { Point } from "multi-scalar-multiplication/dist/cjs/ellipticCurve";
 import {
   Point,
   bigintPair,
   MultiScalarMultiplication,
+  EllipticCurve,
 } from "multi-scalar-multiplication";
 // Structure to hold client information and stream
 interface Client {
@@ -14,13 +16,30 @@ interface Client {
 }
 
 const clients: Client[] = [];
+const points: PointRequest[] = [];
+
+const time = {} as any;
+
+interface PointRequest {
+  x: bigint;
+  y: bigint;
+  clientId: string;
+}
+
+interface ResultAck {
+  success: boolean;
+}
 
 interface StreamRequest {
   clientId: string;
 }
 
 interface ComputationData {
-  data: string;
+  scalar: bigint[];
+  base: {
+    x: bigint;
+    y: bigint;
+  }[];
 }
 
 // load msm data
@@ -44,16 +63,11 @@ const baseDataArray = rawBases.map((b) => {
   };
 });
 
-// // Define Curve
-// const a: bigint = 0n;
-// const b: bigint = 3n;
-// const p: bigint =
-//   21888242871839275222246405745257275088696311157297823662689037894645226208583n;
-
-// const msm = new MultiScalarMultiplication(a, b, p);
-// msm.loadData(scalarDataArray, baseDataArray);
-
-// const result: Point = msm.calculate();
+// Define Curve
+const a: bigint = 0n;
+const b: bigint = 3n;
+const p: bigint =
+  21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
 // Define the path to your .proto file
 const PROTO_PATH = path.resolve(__dirname, "computation.proto");
@@ -73,19 +87,34 @@ const computation = protoDescriptor.computation as any;
 
 const server = new grpc.Server();
 
-const sendComputationData: grpc.handleUnaryCall<any, any> = (
+// receive Point which calculated by client
+const sendPoint: grpc.handleUnaryCall<PointRequest, ResultAck> = (
   call,
   callback
 ) => {
-  console.log(`Received computation data: ${call.request.data}`);
-  callback(null, { success: true });
-};
+  const { x: xValue, y: yValue, clientId } = call.request;
+  const x = BigInt(xValue);
+  const y = BigInt(yValue);
 
-const getComputationResult: grpc.handleUnaryCall<any, any> = (
-  call,
-  callback
-) => {
-  console.log(`Received computation result: ${call.request.result}`);
+  const existingClient = points.find((point) => point.clientId === clientId);
+  if (!existingClient) {
+    points.push({ x, y, clientId });
+  }
+  if (points.length === 4) {
+    const curve = new EllipticCurve(a, b, p);
+    const basePoint: Point = new Point(0n, 0n, curve);
+    const result = points.reduce((acc, point) => {
+      console.log("x, y", point.x, point.y);
+      const p = new Point(point.x, point.y, curve);
+      return acc.add(p);
+    }, basePoint);
+    const { x, y } = result;
+    console.log("!!!!!!!!!!!!!!!!result!!!!!!!!!!!!!!!!!!");
+    console.log("x, y", x.value, y.value);
+  }
+  time.end = new Date().getTime();
+  console.log("time", time);
+  console.log("time passed", time.end - time.start + "ms");
   callback(null, { success: true });
 };
 
@@ -93,8 +122,6 @@ const streamComputationData: grpc.handleServerStreamingCall<
   StreamRequest,
   ComputationData
 > = (call) => {
-  console.log("streamComputationData");
-
   const clientId = call.request.clientId;
   console.log(`Client connected: ${clientId}, from ${call.getPeer()}`);
 
@@ -106,14 +133,16 @@ const streamComputationData: grpc.handleServerStreamingCall<
   // Check if 4 clients have connected, then broadcast a message
   if (clients.length === 4) {
     console.log("Broadcasting message to all clients");
+    time.start = new Date().getTime();
     clients.forEach((client, index) => {
-      const base = baseDataArray.slice(index * 256, index * 256 + 255);
-      const scalar = scalarDataArray.slice(index * 256, index * 256 + 255);
+      const base = baseDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
+      const scalar = scalarDataArray.slice(
+        index * SIZE,
+        index * SIZE + SIZE - 1
+      );
       client.stream.write({
-        data: {
-          base,
-          scalar,
-        },
+        scalar,
+        base,
       }); // Replace 'hello' with your actual data
     });
   } else {
@@ -123,6 +152,7 @@ const streamComputationData: grpc.handleServerStreamingCall<
 
 server.addService(computation.ComputationService.service, {
   streamComputationData,
+  sendPoint,
 });
 
 server.bindAsync(
@@ -137,3 +167,6 @@ server.bindAsync(
     console.log(`Server running at http://0.0.0.0:${port}`);
   }
 );
+
+// quotient of 1024
+const SIZE = 256;
