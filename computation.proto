@@ -14,6 +14,18 @@ service ComputationService {
   rpc StreamComputationData (StreamRequest) returns (stream ComputationData);
 }
 
+// Define a message for your nested 'base' structure
+message Base {
+  string x = 1; // bigint represented as string
+  string y = 2; // bigint represented as string
+}
+
+// Define the main data message
+message ComputationData {
+  repeated string scalar = 1; // Array of bigint, represented as strings
+  repeated Base base = 2; // Array of 'Base' objects
+}
+
 // The request message containing the computation data.
 message ComputationRequest {
   string data = 1;
@@ -37,6 +49,6 @@ message StreamRequest {
   string clientId = 1;
 }
 
-message ComputationData {
-  string data = 1;
-}
+// message ComputationData {
+//     string data = 1;
+// }
