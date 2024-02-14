@@ -24,10 +24,13 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 const protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
 
 // Assume your package is named "computation"
-const computation = protoDescriptor.computation as any;
+const computation = protoDescriptor.computation as grpc.GrpcObject;
+const computationService = computation[
+  "ComputationService"
+] as grpc.ServiceClientConstructor;
 
 // Create a client for the ComputationService
-const client = new computation.ComputationService(
+const client = new computationService(
   localServer,
   // remoteServer,
   grpc.credentials.createInsecure()
