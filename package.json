@@ -19,6 +19,8 @@
     "ts-protoc-gen": "^0.15.0"
   },
   "dependencies": {
+    "fs": "^0.0.1-security",
+    "multi-scalar-multiplication": "^1.0.8",
     "typescript": "^5.3.3",
     "uuidv4": "^6.2.13"
   }
