@@ -105,7 +105,7 @@ const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
   // }
 
   console.time("calcMSM");
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 8; i++) {
     const msm = new MultiScalarMultiplication(a, b, p);
     msm.loadData(scalarDataArray, baseDataArray);
     const result: Point = msm.calculate();
@@ -129,19 +129,20 @@ const sendPoint: grpc.handleUnaryCall<PointRequest, ResultAck> = (
   if (!existingClient) {
     points.push({ x, y, clientId });
   }
-  if (points.length === 4) {
-    const curve = new EllipticCurve(a, b, p);
-    const basePoint: Point = new Point(0n, 0n, curve);
-    const result = points.reduce((acc, point) => {
-      console.log("x, y", point.x, point.y);
-      const p = new Point(point.x, point.y, curve);
-      return acc.add(p);
-    }, basePoint);
-    const { x, y } = result;
-    console.log("!!!!!!!!!!!!!!!!result!!!!!!!!!!!!!!!!!!");
-    console.log("x, y", x.value, y.value);
+  if (points.length === 8) {
+    // const curve = new EllipticCurve(a, b, p);
+    // const basePoint: Point = new Point(0n, 0n, curve);
+    // const result = points.reduce((acc, point) => {
+    //   console.log("x, y", point.x, point.y);
+    //   const p = new Point(point.x, point.y, curve);
+    //   return acc.add(p);
+    // }, basePoint);
+    // const { x, y } = result;
+    // console.log("!!!!!!!!!!!!!!!!result!!!!!!!!!!!!!!!!!!");
+    // console.log("x, y", x.value, y.value);
+    console.log("points received");
+    time.end = new Date().getTime();
   }
-  time.end = new Date().getTime();
   console.log("time", time);
   console.log("time passed", time.end - time.start + "ms");
   callback(null, { success: true });
@@ -160,7 +161,7 @@ const streamComputationData: grpc.handleServerStreamingCall<
   }
 
   // Check if 4 clients have connected, then broadcast a message
-  if (clients.length === 4) {
+  if (clients.length === 8) {
     console.log("Broadcasting message to all clients");
     time.start = new Date().getTime();
     clients.forEach((client, index) => {
