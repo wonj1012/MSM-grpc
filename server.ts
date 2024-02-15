@@ -104,14 +104,15 @@ const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
   //   const scalar = scalarDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
   // }
 
-  const msm = new MultiScalarMultiplication(a, b, p);
-  msm.loadData(scalarDataArray, baseDataArray);
   console.time("calcMSM");
-  const result: Point = msm.calculate();
-  const { x, y } = result;
-  console.log("x, y", x.value, y.value);
+  for (let i = 0; i < 4; i++) {
+    const msm = new MultiScalarMultiplication(a, b, p);
+    msm.loadData(scalarDataArray, baseDataArray);
+    const result: Point = msm.calculate();
+    const { x, y } = result;
+    console.log("x, y", x.value, y.value);
+  }
   console.timeEnd("calcMSM");
-
   callback(null, { success: true });
 };
 
@@ -163,14 +164,14 @@ const streamComputationData: grpc.handleServerStreamingCall<
     console.log("Broadcasting message to all clients");
     time.start = new Date().getTime();
     clients.forEach((client, index) => {
-      const base = baseDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
-      const scalar = scalarDataArray.slice(
-        index * SIZE,
-        index * SIZE + SIZE - 1
-      );
+      // const base = baseDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
+      // const scalar = scalarDataArray.slice(
+      //   index * SIZE,
+      //   index * SIZE + SIZE - 1
+      // );
       client.stream.write({
-        scalar,
-        base,
+        scalar: scalarDataArray,
+        base: baseDataArray,
       }); // Replace 'hello' with your actual data
     });
   } else {
