@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "run-server": "ts-node server.ts",
-    "run-client": "ts-node client.ts",
+    "run-msm": "ts-node client-msm.ts",
+    "run-stream": "ts-node client-stream.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -3,6 +3,8 @@ import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { uuid } from "uuidv4";
 import { MultiScalarMultiplication, Point } from "multi-scalar-multiplication";
+import { localServer, remoteServer, useLocal } from "./constant";
+import { ComputationData } from "./types";
 // import { Point } from "multi-scalar-multiplication/dist/cjs/ellipticCurve";
 // import {
 //   bigintPair,
@@ -11,30 +13,6 @@ import { MultiScalarMultiplication, Point } from "multi-scalar-multiplication";
 
 const id = uuid();
 
-const localServer = "localhost:50051";
-const remoteServer =
-  "ec2-43-203-120-228.ap-northeast-2.compute.amazonaws.com:50051";
-
-interface PointRequest {
-  x: bigint;
-  y: bigint;
-  clientId: string;
-}
-interface ResultAck {
-  success: boolean;
-}
-
-interface StreamRequest {
-  clientId: string;
-}
-
-interface ComputationData {
-  scalar: bigint[];
-  base: {
-    x: bigint;
-    y: bigint;
-  }[];
-}
 // Define the path to your .proto file
 const PROTO_PATH = path.resolve(__dirname, "computation.proto");
 
@@ -56,8 +34,7 @@ const computationService = computation[
 
 // Create a client for the ComputationService
 const client = new computationService(
-  // localServer,
-  remoteServer,
+  useLocal ? localServer : remoteServer,
   grpc.credentials.createInsecure()
 );
 
@@ -81,19 +58,6 @@ const sendPoint = (point: Point) => {
       }
     }
   );
-};
-
-const calcMSM = () => {
-  const request = {
-    data: "hi",
-  };
-  client.calcMSM(request, (error: grpc.ServiceError | null, response: any) => {
-    if (error) {
-      console.error(`Error calling calcMSM: ${error.message}`);
-    } else {
-      console.log(`Received from calcMSM: ${JSON.stringify(response)}`);
-    }
-  });
 };
 
 const streamComputationData = () => {
@@ -127,14 +91,7 @@ const streamComputationData = () => {
   });
 };
 
-// 스트리밍 데이터 받기 시작
-
 // 2^10 data => 4 client calculate 2^8 data each
 // 589ms
 // x, y 16769977055440139663044837453504611513502435098538849181162246969510309044676n 8563546506158490061392739186455054238347184995957357525647365730964279358552n
 streamComputationData();
-
-// 2^10 data => server calculate solely
-// 1.362s
-// x, y 12271046154391110796903056111260301140711180019236526893758713726553427189013n 13974163643433631386626173173419578363381003247600587944829073839661880038173n
-// calcMSM();

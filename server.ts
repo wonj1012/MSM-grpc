@@ -9,38 +9,19 @@ import {
   MultiScalarMultiplication,
   EllipticCurve,
 } from "multi-scalar-multiplication";
+import {
+  Client,
+  ComputationData,
+  PointRequest,
+  ResultAck,
+  StreamRequest,
+} from "./types";
 // Structure to hold client information and stream
-interface Client {
-  id: string;
-  stream: grpc.ServerWritableStream<StreamRequest, ComputationData>;
-}
 
 const clients: Client[] = [];
 const points: PointRequest[] = [];
 
 const time = {} as any;
-
-interface PointRequest {
-  x: bigint;
-  y: bigint;
-  clientId: string;
-}
-
-interface ResultAck {
-  success: boolean;
-}
-
-interface StreamRequest {
-  clientId: string;
-}
-
-interface ComputationData {
-  scalar: bigint[];
-  base: {
-    x: bigint;
-    y: bigint;
-  }[];
-}
 
 // load msm data
 const scalarData = fs.readFileSync(
