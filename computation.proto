@@ -6,9 +6,14 @@ package computation;
 service ComputationService {
   // Sends computation data to a node
   rpc sendPoint (PointRequest) returns (ResultAck);
+  rpc calcMSM (CalcMSMRequest) returns (ResultAck);
 
   // Streams computation data to a node
   rpc StreamComputationData (StreamRequest) returns (stream ComputationData);
+}
+
+message CalcMSMRequest {
+  string data = 1;
 }
 
 // Define a message for your nested 'base' structure

@@ -87,6 +87,27 @@ const computation = protoDescriptor.computation as any;
 
 const server = new grpc.Server();
 
+const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
+  call,
+  callback
+) => {
+  console.log("!!!!!!!!!!!!!!!!calcm!!!!!!!!!!!!!!!!!!");
+  const a: bigint = 0n;
+  const b: bigint = 3n;
+  const p: bigint =
+    21888242871839275222246405745257275088696311157297823662689037894645226208583n;
+
+  const msm = new MultiScalarMultiplication(a, b, p);
+  msm.loadData(scalarDataArray, baseDataArray);
+  console.time("calcMSM");
+  const result: Point = msm.calculate();
+  const { x, y } = result;
+  console.log("x, y", x.value, y.value);
+  console.timeEnd("calcMSM");
+
+  callback(null, { success: true });
+};
+
 // receive Point which calculated by client
 const sendPoint: grpc.handleUnaryCall<PointRequest, ResultAck> = (
   call,
@@ -153,6 +174,7 @@ const streamComputationData: grpc.handleServerStreamingCall<
 server.addService(computation.ComputationService.service, {
   streamComputationData,
   sendPoint,
+  calcMsm,
 });
 
 server.bindAsync(
