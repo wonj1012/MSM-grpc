@@ -56,8 +56,8 @@ const computationService = computation[
 
 // Create a client for the ComputationService
 const client = new computationService(
-  localServer,
-  // remoteServer,
+  // localServer,
+  remoteServer,
   grpc.credentials.createInsecure()
 );
 
@@ -101,10 +101,7 @@ const streamComputationData = () => {
   const stream = client.streamComputationData(streamRequest);
   stream.on("data", (data: ComputationData) => {
     const { scalar, base } = data;
-    const requestData = {
-      scalar,
-      base,
-    };
+
     // for giving example
     const a: bigint = 0n;
     const b: bigint = 3n;

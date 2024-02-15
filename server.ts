@@ -97,6 +97,13 @@ const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
   const p: bigint =
     21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
+  const splited = scalarDataArray.slice(0, SIZE);
+
+  // for (let index = 0; index < 4; index++) {
+  //   const base = baseDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
+  //   const scalar = scalarDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
+  // }
+
   const msm = new MultiScalarMultiplication(a, b, p);
   msm.loadData(scalarDataArray, baseDataArray);
   console.time("calcMSM");
