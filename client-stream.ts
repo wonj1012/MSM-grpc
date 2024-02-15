@@ -3,7 +3,7 @@ import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { uuid } from "uuidv4";
 import { MultiScalarMultiplication, Point } from "multi-scalar-multiplication";
-import { localServer, remoteServer, useLocal } from "./constant";
+import { server } from "./constant";
 import { ComputationData } from "./types";
 // import { Point } from "multi-scalar-multiplication/dist/cjs/ellipticCurve";
 // import {
@@ -34,7 +34,7 @@ const computationService = computation[
 
 // Create a client for the ComputationService
 const client = new computationService(
-  useLocal ? localServer : remoteServer,
+  server,
   grpc.credentials.createInsecure()
 );
 
