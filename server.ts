@@ -60,10 +60,12 @@ const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
   call,
   callback
 ) => {
-  console.log("=== Calculate MSM Start===");
+  console.log("=== MSM Calculation Start (Server-only)===");
+  console.log("Elliptic Curve: y^2 = x^3 + 3");
   console.log(
-    "Elliptic Curve: y^2 = x^3 + 3, p: 21888242871839275222246405745257275088696311157297823662689037894645226208583"
+    "p: 21888242871839275222246405745257275088696311157297823662689037894645226208583"
   );
+
   console.log("Base Point: (0, 0)");
   console.log("Input data size: 2^13");
 
@@ -72,7 +74,7 @@ const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
   const p: bigint =
     21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
-  console.time("MSM calculation");
+  console.time("Time duration for msm-calculation(server-only)");
   for (let i = 0; i < LENGTH; i++) {
     const msm = new MultiScalarMultiplication(a, b, p);
     msm.loadData(scalarDataArray, baseDataArray);
@@ -81,8 +83,9 @@ const calcMsm: grpc.handleUnaryCall<ComputationData, ResultAck> = (
       console.log("Running...");
     }
   }
-  console.timeEnd("MSM calculation");
-  console.log("=== Calculate MSM End===");
+  console.log("=== MSM Calculation End (Server-only) ===");
+  console.timeEnd("Time duration for msm-calculation(server-only)");
+  console.log("==============================================================");
   callback(null, { success: true });
 };
 
@@ -97,7 +100,7 @@ const sendPoint: grpc.handleUnaryCall<PointRequest, ResultAck> = (
   const existingClient = points.find((point) => point.clientId === clientId);
   if (!existingClient) {
     points.push({ x, y, clientId });
-    console.log("== Point received ==");
+    console.log(`== Point received from client ${clientId} ==`);
   }
   if (points.length === LENGTH) {
     // const curve = new EllipticCurve(a, b, p);
@@ -107,9 +110,12 @@ const sendPoint: grpc.handleUnaryCall<PointRequest, ResultAck> = (
     //   const p = new Point(point.x, point.y, curve);
     //   return acc.add(p);
     // }, basePoint);
-    console.log("=== All the point received ===");
     time.end = new Date().getTime();
-    console.log(`=== Time passed ${time.end - time.start}ms ===`);
+    console.log("=== MSM Nerwork End (distributed-client)===");
+    console.log(`Time duration for msm-network: ${time.end - time.start}ms`);
+    console.log(
+      "=============================================================="
+    );
 
     // clear data
     clients.splice(0, clients.length);
@@ -136,6 +142,7 @@ const streamComputationData: grpc.handleServerStreamingCall<
   // If all clients are connected, broadcast a message
   if (clients.length === LENGTH) {
     console.log("=== All clients connected, BroadCast msm ===");
+    console.log("=== MSM Nerwork Start (distributed-client)===");
     time.start = new Date().getTime();
     clients.forEach((client, index) => {
       // const base = baseDataArray.slice(index * SIZE, index * SIZE + SIZE - 1);
