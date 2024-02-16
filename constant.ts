@@ -6,7 +6,7 @@ const c54xLarge =
   "ec2-52-79-241-117.ap-northeast-2.compute.amazonaws.com:50051"; // 16vCPU 32GB
 
 const new_instance =
-  "ec2-43-202-76-138.ap-northeast-2.compute.amazonaws.com:50051";
+  "ec2-43-203-126-28.ap-northeast-2.compute.amazonaws.com:50051";
 
 // export const server = c54xLarge;
 // export const server = t2Large;
