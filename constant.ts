@@ -5,10 +5,14 @@ const c5Large = "ec2-13-125-254-66.ap-northeast-2.compute.amazonaws.com:50051"; 
 const c54xLarge =
   "ec2-52-79-241-117.ap-northeast-2.compute.amazonaws.com:50051"; // 16vCPU 32GB
 
+const new_instance =
+  "ec2-43-202-76-138.ap-northeast-2.compute.amazonaws.com:50051";
+
 // export const server = c54xLarge;
 // export const server = t2Large;
 // export const server = t2Micro;
-export const server = localServer;
+// export const server = localServer;
+export const server = new_instance;
 
 // points = s^10 * LENGTH
 // client = LENGTH
