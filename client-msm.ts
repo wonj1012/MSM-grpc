@@ -37,7 +37,7 @@ const calcMSM = () => {
     if (error) {
       console.error(`Error calling calcMSM: ${error.message}`);
     } else {
-      console.log(`Received from server: ${JSON.stringify(response)}`);
+      console.log(`Received from Prover: ${JSON.stringify(response)}`);
     }
   });
 };
